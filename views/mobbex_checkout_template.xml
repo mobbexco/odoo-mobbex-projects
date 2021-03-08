@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="mobbex_form">
+        <div>
+            <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me="" />
+            <input type="hidden" name="_input_charset" t-att-value="_input_charset" />
+            <input type="hidden" name="cmd" t-att-value="cmd" />
+            <input type="hidden" name="business" t-att-value="business" />
+            <input type="hidden" name="reference" t-att-value="reference" />
+            <input type="hidden" name="item_name" t-att-value="item_name" />
+            <input type="hidden" name="item_number" t-att-value="item_number" />
+            <input type="hidden" name="amount" t-att-value="amount" />
+            <input t-if="handling" type="hidden" name="handling" t-att-value="handling" />
+            <input t-if="service == 'create_forex_trade'" type="hidden" name="currency" t-att-value="currency" />
+            <input type="hidden" name="notify_url" t-att-value="notify_url" />
+            <input type="hidden" name="out_trade_no" t-att-value="out_trade_no" />
+            <input type="hidden" name="partner" t-att-value="partner" />
+            <input t-if="product_code" type="hidden" name="product_code" t-att-value="product_code" />
+            <input type="hidden" name="return_url" t-att-value="return_url" />
+        </div>
+    </template>
+</odoo>

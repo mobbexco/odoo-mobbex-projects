@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="payment_acquirer_view_form_inherit_payment_mobbex" model="ir.ui.view">
+            <field name="name">payment.acquirer.view.form.inherit.payment.mobbex</field>
+            <field name="model">payment.acquirer</field>
+            <field name="inherit_id" ref="payment.acquirer_form" />
+            <field name="arch" type="xml">
+                <xpath expr='//group[@name="acquirer"]' position='inside'>
+                    <group attrs="{'invisible': [('provider', '!=', 'mobbex')]}">
+                        <field name="mobbex_payment_method" widget="radio" />
+                        <field name="mobbex_api_key" />
+                        <field name="mobbex_access_token" />
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
