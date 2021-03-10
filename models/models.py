@@ -31,40 +31,6 @@ class PaymentAcquirer(models.Model):
                 'mobbex_rest_url': '/payment/mobbex/notify_url/',
             }
 
-    # def mobbex_form_generate_values(self, values):
-    #     base_url = self.get_base_url()
-    #     mobbex_tx_values = dict(values)
-    #     param_plus = {
-    #         'return_url': mobbex_tx_values.pop('return_url', False)
-    #     }
-    #     temp_ogone_tx_values = {
-    #         'ORDERID': values['reference'],
-    #         'AMOUNT': float_repr(float_round(values['amount'], 2) * 100, 0),
-    #         'CURRENCY': values['currency'] and values['currency'].name or '',
-    #         'LANGUAGE': values.get('partner_lang'),
-    #         'CN': values.get('partner_name'),
-    #         'EMAIL': values.get('partner_email'),
-    #         'OWNERZIP': values.get('partner_zip'),
-    #         'OWNERADDRESS': values.get('partner_address'),
-    #         'OWNERTOWN': values.get('partner_city'),
-    #         'OWNERCTY': values.get('partner_country') and values.get('partner_country').code or '',
-    #         'OWNERTELNO': values.get('partner_phone'),
-    #         'ACCEPTURL': urls.url_join(base_url, OgoneController._accept_url),
-    #         'DECLINEURL': urls.url_join(base_url, OgoneController._decline_url),
-    #         'EXCEPTIONURL': urls.url_join(base_url, OgoneController._exception_url),
-    #         'CANCELURL': urls.url_join(base_url, OgoneController._cancel_url),
-    #         'PARAMPLUS': url_encode(param_plus),
-    #     }
-    #     if self.save_token in ['ask', 'always']:
-    #         temp_ogone_tx_values.update({
-    #             'ALIAS': 'ODOO-NEW-ALIAS-%s' % time.time(),    # something unique,
-    #             'ALIASUSAGE': values.get('alias_usage') or self.ogone_alias_usage,
-    #         })
-    #     shasign = self._ogone_generate_shasign('in', temp_ogone_tx_values)
-    #     temp_ogone_tx_values['SHASIGN'] = shasign
-    #     ogone_tx_values.update(temp_ogone_tx_values)
-    #     return ogone_tx_values
-
     def mobbex_get_form_action_url(self):
         self.ensure_one()
         environment = 'prod' if self.state == 'enabled' else 'test'
@@ -75,12 +41,14 @@ class TxMobbex(models.Model):
     _inherit = 'payment.transaction'
     _logger.info('Model TXMobbex')
 
-    @api.model
     def _mobbex_form_get_tx_from_data(self, data):
-        reference, txn_id = data.get('item_number'), data.get('txn_id')
-        if not reference or not txn_id:
-            error_msg = _('Mobbex: received data with missing reference (%s) or txn_id (%s)') % (
-                reference, txn_id)
+        _logger.info('llega from data')
+        _logger.info(data)
+        _logger.info(self)
+        reference = data['reference']
+        if not reference:
+            error_msg = _('Mobbex: received data with missing reference (%s)') % (
+                reference)
             _logger.info(error_msg)
             raise ValidationError(error_msg)
 
@@ -96,3 +64,14 @@ class TxMobbex(models.Model):
             _logger.info(error_msg)
             raise ValidationError(error_msg)
         return txs[0]
+
+    def _mobbex_form_validate(self, data):
+        _logger.info('llega model')
+        status = data['status']
+
+        pending = [0, 1, 2, 3, 100, 201]
+        cancel = [401, 402, 601, 602, 603, 610]
+        if status == 200:
+            self.sudo()._set_transaction_pending()
+        elif status in cancel:
+            self.sudo()._set_transaction_done()
