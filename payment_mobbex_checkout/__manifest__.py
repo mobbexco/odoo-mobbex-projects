@@ -19,4 +19,5 @@
     'post_init_hook': 'create_missing_journal_for_acquirers',
     'uninstall_hook': 'uninstall_hook',
     'images': ['static/description/checkout_banner.png'],
+    'license': 'AGPL-3'
 }
