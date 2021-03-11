@@ -1,0 +1,27 @@
+.mobbex-logo {
+  background-image: url("../img/mobbex_blanco.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 150px;
+}
+
+.img-desc {
+  height: 180px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.ss1 {
+  background-image: url("../img/screenshots/screenshot1.png");
+}
+.ss2 {
+  background-image: url("../img/screenshots/screenshot2.png");
+}
+.ss3 {
+  background-image: url("../img/screenshots/screenshot3.png");
+}
+.ss4 {
+  background-image: url("../img/screenshots/screenshot4.png");
+}

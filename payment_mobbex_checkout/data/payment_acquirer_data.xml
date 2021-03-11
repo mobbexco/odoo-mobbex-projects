@@ -2,7 +2,7 @@
 <odoo noupdate="1">
     <record id="payment_acquirer_mobbex" model="payment.acquirer">
         <field name="name">Mobbex</field>
-        <field name="image_128" type="base64" file="mobbex_checkout/static/description/icon.png" />
+        <field name="image_128" type="base64" file="payment_mobbex_checkout/static/description/icon.png" />
         <field name="provider">mobbex</field>
         <field name="company_id" ref="base.main_company" />
         <field name="view_template_id" ref="mobbex_form" />
