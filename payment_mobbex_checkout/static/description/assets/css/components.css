@@ -1,5 +1,5 @@
 .mobbex-logo {
-  background-image: url("assets/img/mobbex_blanco.png");
+  background-image: url("../img/mobbex_blanco.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
@@ -14,14 +14,14 @@
 }
 
 .ss1 {
-  background-image: url("assets/img/screenshots/screenshot1.png");
+  background-image: url("../img/screenshots/screenshot1.png");
 }
 .ss2 {
-  background-image: url("assets/img/screenshots/screenshot2.png");
+  background-image: url("../img/screenshots/screenshot2.png");
 }
 .ss3 {
-  background-image: url("assets/img/screenshots/screenshot3.png");
+  background-image: url("../img/screenshots/screenshot3.png");
 }
 .ss4 {
-  background-image: url("assets/img/screenshots/screenshot4.png");
+  background-image: url("../img/screenshots/screenshot4.png");
 }

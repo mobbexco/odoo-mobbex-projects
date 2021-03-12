@@ -42,6 +42,11 @@ class MobbexController(http.Controller):
         billing_partner_email = post['billing_partner_email']
         billing_partner_name = post['billing_partner_name']
         billing_partner_phone = post['billing_partner_phone']
+
+        # Get Acquirer ID
+        acquirer_id = int(post['acquirer'].replace(
+            'payment.acquirer(', '').replace(',', '').replace(')', ''))
+        _logger.info(acquirer_id)
         # ==================================================================
 
         # DB Querying
@@ -66,11 +71,11 @@ class MobbexController(http.Controller):
         # Get Base Url
         base_url = http.request.env['ir.config_parameter'].sudo().get_param(
             'web.base.url')
-        # base_url = 'https://915e34fdd14b.ngrok.io'
+        # base_url = 'https://f4a81ec50f78.ngrok.io'
         _logger.info(base_url)
 
         # Get Api key & Token
-        filterAcquirer = [('name', '=', 'Mobbex')]
+        filterAcquirer = [('id', '=', acquirer_id)]
         mobbexAcquirer = http.request.env['payment.acquirer'].sudo().search(
             filterAcquirer)
 
