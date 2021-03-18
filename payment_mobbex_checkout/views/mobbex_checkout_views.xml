@@ -15,5 +15,19 @@
                 </xpath>
             </field>
         </record>
+
+        <!-- <record id="res_partner_form_view_inherit_payment_mobbex" model="ir.ui.view">
+            <field name="name">res.partner.form.view.inherit.payment.mobbex</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="website_sale.address" />
+            <field name="arch" type="xml">
+                <xpath expr="//div[@id='div_phone']" position="before">
+                    <div class="w-100">
+                        <field name="dni" />
+                        <field name="dni2" />
+                    </div>
+                </xpath>
+            </field>
+        </record> -->
     </data>
 </odoo>

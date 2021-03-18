@@ -10,6 +10,7 @@
             <input type="hidden" name="reference" t-att-value="reference" />
             <input type="hidden" name="amount" t-att-value="amount" />
             <input type="hidden" name="currency_id" t-att-value="currency_id" />
+            <input type="hidden" name="currency_name" t-att-value="currency.name" />
             <input type="hidden" name="billing_partner_email" t-att-value="billing_partner_email" />
             <input type="hidden" name="billing_partner_phone" t-att-value="billing_partner_phone" />
             <input type="hidden" name="billing_partner_name" t-att-value="billing_partner_name" />

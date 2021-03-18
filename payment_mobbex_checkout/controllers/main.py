@@ -34,6 +34,7 @@ class MobbexController(http.Controller):
 
         # Get Currency Ref
         currency_id = post['currency_id']
+        currency_name = post['currency_name']
 
         # Get Amount
         amount = post['amount']
@@ -62,16 +63,17 @@ class MobbexController(http.Controller):
             filterProducts)
 
         # Get Currency
-        filter_currency = [('id', '=', currency_id)]
-        currency = http.request.env['res.currency'].sudo().search(
-            filter_currency)
-        currency_name = currency.name
-        _logger.info(currency_name)
+        if currency_name == '' or currency_name is None:
+            filter_currency = [('id', '=', currency_id)]
+            currency = http.request.env['res.currency'].sudo().search(
+                filter_currency)
+            currency_name = currency.name
+            _logger.info(currency_name)
 
         # Get Base Url
-        base_url = http.request.env['ir.config_parameter'].sudo().get_param(
-            'web.base.url')
-        # base_url = 'https://f4a81ec50f78.ngrok.io'
+        # base_url = http.request.env['ir.config_parameter'].sudo().get_param(
+        #     'web.base.url')
+        base_url = 'https://f4a81ec50f78.ngrok.io'
         _logger.info(base_url)
 
         # Get Api key & Token
@@ -81,6 +83,10 @@ class MobbexController(http.Controller):
 
         mobbex_api_key = mobbexAcquirer.mobbex_api_key
         mobbex_access_token = mobbexAcquirer.mobbex_access_token
+
+        # Get State
+        mobbex_state = mobbexAcquirer.state
+        _logger.info(mobbex_state)
         # ==================================================================
 
         # Build transaction
@@ -123,6 +129,8 @@ class MobbexController(http.Controller):
         transaction['options'] = options
         transaction['webhook'] = f'{base_url}/payment/mobbex/return_url/'
         # transaction['webhook'] = f'https://94de78905bf2.ngrok.io/payment/mobbex/return_url/'
+        if(mobbex_state == 'test'):
+            transaction['test'] = True
         _logger.info(transaction)
         # ==================================================================
 
