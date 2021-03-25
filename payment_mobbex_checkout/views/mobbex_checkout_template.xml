@@ -14,6 +14,7 @@
             <input type="hidden" name="billing_partner_email" t-att-value="billing_partner_email" />
             <input type="hidden" name="billing_partner_phone" t-att-value="billing_partner_phone" />
             <input type="hidden" name="billing_partner_name" t-att-value="billing_partner_name" />
+            <input type="hidden" name="dni_mobbex" t-att-value="dni_mobbex" />
             <input type="hidden" name="partner" t-att-value="partner" />
             <input type="hidden" name="return_url" t-att-value="return_url" />
         </div>

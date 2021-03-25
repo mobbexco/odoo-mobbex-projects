@@ -16,6 +16,29 @@
             </field>
         </record>
 
+        <template id="mobbex_website_payment_inherit" inherit_id="website_sale.payment">
+            <xpath expr="//div[@id='payment_method']" position="inside">
+                <t t-set="field_name_val" t-value="request.env['res.partner'].sudo().
+                   search([])" />
+                <h3 class="mb24">Datos adicionales Mobbex</h3>
+                <div class="card">
+                    <div class="card-body ">
+                        <div class="form-group field-new" attrs="{'invisible':[('payment.acquirer.name', '!=', 'mobbex')]}">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="label" class="control-label">
+                                        <b>DNI  </b>
+                                    </label>
+                                    <input type="text" name="dni_mobbex" id="dni_mobbex" class="form-control" required="required" />
+                                </div>
+                                <div class="col-6"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
         <!-- <record id="res_partner_form_view_inherit_payment_mobbex" model="ir.ui.view">
             <field name="name">res.partner.form.view.inherit.payment.mobbex</field>
             <field name="model">res.partner</field>

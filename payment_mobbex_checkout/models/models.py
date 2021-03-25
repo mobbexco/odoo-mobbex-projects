@@ -81,7 +81,7 @@ class MobbexResPartner(models.Model):
     _inherit = 'res.partner'
     _logger.info('Model ResPartner Mobbex')
 
-    # dni = fields.Char(
-    #     string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')
+    dni_mobbex = fields.Char(
+        string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')
     # dni2 = fields.Char(
     #     string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')
