@@ -73,7 +73,7 @@ class MobbexController(http.Controller):
         # Get Base Url
         # base_url = http.request.env['ir.config_parameter'].sudo().get_param(
         #     'web.base.url')
-        base_url = 'https://f4a81ec50f78.ngrok.io'
+        base_url = 'https://b94439803436.ngrok.io'
         _logger.info(base_url)
 
         # Get Api key & Token
