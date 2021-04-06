@@ -20,13 +20,22 @@ class MobbexController(http.Controller):
     _logger.info('Controller Init')
 
     @http.route([
+        '/mobbex/test_values/'],
+        type='http', auth='public', methods=['POST'], csrf=False, website=True)
+    def mobbex_test_values(self, **post):
+        _logger.info('Test Values')
+        _logger.info(post)
+        return json.dumps(post)
+
+    @http.route([
         '/payment/mobbex/notify_url/'],
-        type='http', auth='public', methods=['POST'], csrf=False)
+        type='http', auth='public', methods=['POST'], csrf=False, website=True)
     def mobbex_notify(self, **post):
         _logger.info('Controller Notify')
+        # _logger.info(self)
         _logger.info(post)
 
-        # Get al post data
+        # Get all post data
         # ==================================================================
         # Get name sale order
         reference = post['reference'].split('-')
@@ -39,15 +48,22 @@ class MobbexController(http.Controller):
         # Get Amount
         amount = post['amount']
 
-        # Get email billing
+        # Get Billing Data
         billing_partner_email = post['billing_partner_email']
         billing_partner_name = post['billing_partner_name']
         billing_partner_phone = post['billing_partner_phone']
+
+        # Get Partner Data
+        partner_dni_mobbex = post['partner_dni_mobbex']
 
         # Get Acquirer ID
         acquirer_id = int(post['acquirer'].replace(
             'payment.acquirer(', '').replace(',', '').replace(')', ''))
         _logger.info(acquirer_id)
+
+        # Get Mobbex Additional Data
+        form_dni_mobbex = post['form_dni_mobbex']
+        _logger.info(form_dni_mobbex)
         # ==================================================================
 
         # DB Querying
@@ -71,9 +87,9 @@ class MobbexController(http.Controller):
             _logger.info(currency_name)
 
         # Get Base Url
-        # base_url = http.request.env['ir.config_parameter'].sudo().get_param(
-        #     'web.base.url')
-        base_url = 'https://b94439803436.ngrok.io'
+        base_url = http.request.env['ir.config_parameter'].sudo().get_param(
+            'web.base.url')
+        # base_url = 'https://2dea760e342d.ngrok.io'
         _logger.info(base_url)
 
         # Get Api key & Token
@@ -114,6 +130,18 @@ class MobbexController(http.Controller):
         platform["version"] = "1.0.0"
         options["platform"] = platform
 
+        # DNI Mobbex Validation
+        final_dni = partner_dni_mobbex
+        if form_dni_mobbex != partner_dni_mobbex:
+            final_dni = form_dni_mobbex
+            # We update res_partner.dni_mobbex
+            partner_id = post['partner_id']
+            partner = request.env['res.partner'].sudo().browse(int(partner_id))
+            partner.write({'dni_mobbex': form_dni_mobbex})
+
+        if final_dni != '' and final_dni != None:
+            customer['identification'] = final_dni
+
         # Customer Data
         customer['email'] = billing_partner_email
         # customer['identification'] = ''
@@ -127,8 +155,8 @@ class MobbexController(http.Controller):
         transaction['items'] = items
         transaction['customer'] = customer
         transaction['options'] = options
+        transaction['return_url '] = f'{base_url}/shop/'
         transaction['webhook'] = f'{base_url}/payment/mobbex/return_url/'
-        # transaction['webhook'] = f'https://94de78905bf2.ngrok.io/payment/mobbex/return_url/'
         if(mobbex_state == 'test'):
             transaction['test'] = True
         _logger.info(transaction)
@@ -153,6 +181,8 @@ class MobbexController(http.Controller):
                           data=data, headers=headers)
         dataRes = r.json()
 
+        # Set state in sent when checkout is created
+        saleorders.write({'state': 'sent'})
         return werkzeug.utils.redirect(dataRes['data']['url'])
         # ==================================================================
         # return werkzeug.utils.redirect('/payment/process')
@@ -168,9 +198,19 @@ class MobbexController(http.Controller):
         status = int(post.get("data[payment][status][code]"))
         reference = post.get("data[payment][reference]")
 
+        # Get sale order
+        ref_name = reference.split('-')
+        ref = ref_name[0]
+        filter = [('name', '=', ref)]
+        saleorders = http.request.env['sale.order'].sudo().search(filter)
+
         feedback = {"reference": reference, "status": status}
         # Testing Change Status
-        res = request.env['payment.transaction'].sudo(
+        res = http.request.env['payment.transaction'].sudo(
         ).form_feedback(feedback, 'mobbex')
         _logger.info(res)
+
+        if res == 'paid':
+            # If transaction was paid, we need confirm order sale
+            saleorders.sudo().action_confirm()
         return 'Ok'

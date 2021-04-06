@@ -1,5 +1,7 @@
 import logging
+from ..controllers.main import MobbexController
 from odoo import api, fields, models, _
+from odoo.http import request
 from odoo.addons.payment.models.payment_acquirer import ValidationError
 _logger = logging.getLogger(__name__)
 
@@ -32,7 +34,41 @@ class PaymentAcquirer(models.Model):
                 'mobbex_rest_url': '/payment/mobbex/notify_url/',
             }
 
+    def _get_mobbex_tx_values(self, values):
+        base_url = self.env['ir.config_parameter'].sudo(
+        ).get_param('web.base.url')
+
+        partner_id = values.get('partner_id')
+        partner = request.env['res.partner'].sudo().browse(partner_id)
+
+        _logger.info('tx values')
+        _logger.info(values)
+        _logger.info(self)
+
+        mobbex_tx_values = ({
+            '_input_charset': 'utf-8',
+            'acquirer': values.get('acquirer'),
+            'acquirer_provider': values.get('acquirer_provider'),
+            'reference': values.get('reference'),
+            'amount': values.get('amount'),
+            'currency_id': values.get('currency_id'),
+            'currency_name': values.get('currency_name'),
+            'billing_partner_email': values.get('billing_partner_email'),
+            'billing_partner_phone': values.get('billing_partner_phone'),
+            'billing_partner_name': values.get('billing_partner_name'),
+            'partner_dni_mobbex': partner.dni_mobbex,
+            'partner': values.get('partner'),
+            'return_url': values.get('return_url'),
+        })
+
+        return mobbex_tx_values
+
+    def mobbex_form_generate_values(self, values):
+        values.update(self._get_mobbex_tx_values(values))
+        return values
+
     def mobbex_get_form_action_url(self):
+        _logger.info('Mobbex action url')
         self.ensure_one()
         environment = 'prod' if self.state == 'enabled' else 'test'
         return self._get_mobbex_urls(environment)['mobbex_rest_url']
@@ -45,7 +81,6 @@ class TxMobbex(models.Model):
     def _mobbex_form_get_tx_from_data(self, data):
         _logger.info('llega from data')
         _logger.info(data)
-        _logger.info(self)
         reference = data['reference']
         if not reference:
             error_msg = _('Mobbex: received data with missing reference (%s)') % (
@@ -69,13 +104,20 @@ class TxMobbex(models.Model):
     def _mobbex_form_validate(self, data):
         _logger.info('llega model')
         status = data['status']
+        return_val = ''
 
         pending = [0, 1, 2, 3, 100, 201]
         cancel = [401, 402, 601, 602, 603, 610]
         if status == 200:
-            self.sudo()._set_transaction_pending()
-        elif status in cancel:
             self.sudo()._set_transaction_done()
+            return_val = 'paid'
+        if status in pending:
+            self.sudo()._set_transaction_pending()
+            return_val = 'pending'
+        elif status in cancel:
+            self.sudo()._set_transaction_cancel()
+            return_val = 'cancelled'
+        return return_val
 
 
 class MobbexResPartner(models.Model):
