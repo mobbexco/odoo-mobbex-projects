@@ -7,6 +7,7 @@
             <!-- <input type="hidden" name="cmd" t-att-value="cmd" /> -->
             <!-- <input type="hidden" name="business" t-att-value="business" /> -->
             <input type="hidden" name="acquirer" t-att-value="acquirer" />
+            <input type="hidden" name="acquirer_provider" t-att-value="acquirer.provider" />
             <input type="hidden" name="reference" t-att-value="reference" />
             <input type="hidden" name="amount" t-att-value="amount" />
             <input type="hidden" name="currency_id" t-att-value="currency_id" />
@@ -14,9 +15,17 @@
             <input type="hidden" name="billing_partner_email" t-att-value="billing_partner_email" />
             <input type="hidden" name="billing_partner_phone" t-att-value="billing_partner_phone" />
             <input type="hidden" name="billing_partner_name" t-att-value="billing_partner_name" />
-            <input type="hidden" name="dni_mobbex" t-att-value="dni_mobbex" />
-            <input type="hidden" name="partner" t-att-value="partner" />
+            <input type="hidden" name="partner_dni_mobbex" t-att-value="partner_dni_mobbex" />
+            <input type="hidden" name="partner_id" t-att-value="partner.id" />
+            <input type="hidden" name="form_dni_mobbex" t-att-value="dni_mobbex1" />
+            <!-- <input type="hidden" name="partner" t-att-value="partner" /> -->
             <input type="hidden" name="return_url" t-att-value="return_url" />
         </div>
+    </template>
+
+    <template id="assets_frontend" inherit_id="web.assets_frontend">
+        <xpath expr="script[last()]" position="after">
+            <script type="text/javascript" src="/payment_mobbex_checkout/static/src/js/payment_form.js"></script>
+        </xpath>
     </template>
 </odoo>
