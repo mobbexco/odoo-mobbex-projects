@@ -125,7 +125,7 @@ class MobbexController(http.Controller):
         # transaction['items'] = items
         transaction['customer'] = customer
         transaction['options'] = options
-        # transaction['return_url'] = f'{base_url}/payment/mobbex/return_url'
+        transaction['return_url'] = f'{base_url}/payment/mobbex/return_url'
         transaction['webhook'] = f'{base_url}/payment/mobbex/webhook/'
         if(mobbex_state == 'test'):
             transaction['test'] = True
@@ -155,16 +155,16 @@ class MobbexController(http.Controller):
         # return werkzeug.utils.redirect('/payment/process')
         # return ''
 
-    # @http.route([
-    #     '/payment/mobbex/return_url/'], type='http', auth="public", csrf=False)
-    # def mobbex_return(self, **post):
-    #     """ Mobbex Return """
-    #     _logger.info('Controller Return')
-    #     _logger.info(post)
-    #     # post is something like = {'status': '200', 'transactionId': 'hyeorJ8P~', 'type': 'card'}
-    #     # Here we should check the status of the transaction and the call form_feedback with the odoo transaction reference
-    #     http.request.env['payment.transaction'].sudo().form_feedback(post, 'mobbex')
-    #     return werkzeug.utils.redirect("/payment/process")
+    @http.route([
+        '/payment/mobbex/return_url/'], type='http', auth="public", csrf=False)
+    def mobbex_return(self, **post):
+        """ Mobbex Return """
+        _logger.info('Controller Return')
+        _logger.info(post)
+        # post is something like = {'status': '200', 'transactionId': 'hyeorJ8P~', 'type': 'card'}
+        # Here we should check the status of the transaction and the call form_feedback with the odoo transaction reference
+        # http.request.env['payment.transaction'].sudo().form_feedback(post, 'mobbex')
+        return werkzeug.utils.redirect("/payment/process")
 
     @http.route([
         '/payment/mobbex/webhook/'], type='http', auth="public", methods=['POST'], csrf=False)
@@ -181,4 +181,4 @@ class MobbexController(http.Controller):
         res = http.request.env['payment.transaction'].sudo().form_feedback(feedback, 'mobbex')
         _logger.info('Transaction result: ' + res)
 
-        return werkzeug.utils.redirect("/payment/process")
+        # return werkzeug.utils.redirect("/payment/process")
