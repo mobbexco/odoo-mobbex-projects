@@ -3,7 +3,7 @@
 
 {
     'name': 'Mobbex Checkout',
-    'version': '1.0.1',
+    'version': '1.1.1',
     'author': 'Mobbex',
     'website': 'https://www.mobbex.com/',
     'category': 'Accounting/Payment',

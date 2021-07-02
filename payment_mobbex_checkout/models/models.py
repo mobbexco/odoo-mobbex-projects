@@ -55,7 +55,7 @@ class PaymentAcquirer(models.Model):
             'billing_partner_email': values.get('billing_partner_email'),
             'billing_partner_phone': values.get('billing_partner_phone'),
             'billing_partner_name': values.get('billing_partner_name'),
-            'partner_dni_mobbex': partner.dni_mobbex,
+            'partner_dni_mobbex': partner.vat,
             'partner': values.get('partner'),
             'return_url': values.get('return_url'),
         })
@@ -117,13 +117,3 @@ class TxMobbex(models.Model):
             self.sudo()._set_transaction_cancel()
             return_val = 'cancelled'
         return return_val
-
-
-class MobbexResPartner(models.Model):
-    _inherit = 'res.partner'
-    _logger.info('Model ResPartner Mobbex')
-
-    dni_mobbex = fields.Char(
-        string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')
-    # dni2 = fields.Char(
-    #     string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')

@@ -17,7 +17,7 @@
             <input type="hidden" name="billing_partner_name" t-att-value="billing_partner_name" />
             <input type="hidden" name="partner_dni_mobbex" t-att-value="partner_dni_mobbex" />
             <input type="hidden" name="partner_id" t-att-value="partner.id" />
-            <input type="hidden" name="form_dni_mobbex" t-att-value="dni_mobbex1" />
+            <!-- <input type="hidden" name="form_dni_mobbex" t-att-value="dni_mobbex1" /> -->
             <!-- <input type="hidden" name="partner" t-att-value="partner" /> -->
             <input type="hidden" name="return_url" t-att-value="return_url" />
         </div>
@@ -25,7 +25,7 @@
 
     <template id="assets_frontend" inherit_id="web.assets_frontend">
         <xpath expr="script[last()]" position="after">
-            <script type="text/javascript" src="/payment_mobbex_checkout/static/src/js/payment_form.js"></script>
+            <!-- <script type="text/javascript" src="/payment_mobbex_checkout/static/src/js/payment_form.js"></script> -->
         </xpath>
     </template>
 </odoo>
