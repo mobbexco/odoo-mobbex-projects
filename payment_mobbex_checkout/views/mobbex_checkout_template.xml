@@ -6,7 +6,7 @@
             <!-- <input type="hidden" name="_input_charset" t-att-value="_input_charset" /> -->
             <!-- <input type="hidden" name="cmd" t-att-value="cmd" /> -->
             <!-- <input type="hidden" name="business" t-att-value="business" /> -->
-            <input type="hidden" name="acquirer" t-att-value="acquirer" />
+            <input type="hidden" name="acquirer" t-att-value="acquirer.id" />
             <input type="hidden" name="acquirer_provider" t-att-value="acquirer.provider" />
             <input type="hidden" name="reference" t-att-value="reference" />
             <input type="hidden" name="amount" t-att-value="amount" />

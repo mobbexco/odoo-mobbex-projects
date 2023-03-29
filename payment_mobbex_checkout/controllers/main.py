@@ -11,7 +11,6 @@ from odoo.http import request
 # from urllib import parse
 
 _logger = logging.getLogger(__name__)
-_logger.info('Controller instance')
 
 
 class MobbexController(http.Controller):
@@ -31,30 +30,25 @@ class MobbexController(http.Controller):
         '/payment/mobbex/notify_url/'],
         type='http', auth='public', methods=['POST'], csrf=False, website=True)
     def mobbex_notify(self, **post):
-        _logger.info('Controller Notify')
-        _logger.info(post)
-
         # Get all post data
         # ==================================================================
         # Get Currency Ref
-        currency_id = post['currency_id']
-        currency_name = post['currency_name']
+        currency_id = post.get('currency_id')
+        currency_name = post.get('currency_name')
 
         # Get Amount
-        amount = post['amount']
+        amount = post.get('amount')
 
         # Get Billing Data
-        billing_partner_email = post['billing_partner_email']
-        billing_partner_name = post['billing_partner_name']
-        billing_partner_phone = post['billing_partner_phone']
+        billing_partner_email = post.get('billing_partner_email')
+        billing_partner_name = post.get('billing_partner_name')
+        billing_partner_phone = post.get('billing_partner_phone')
 
         # Get Partner Data
-        partner_dni_mobbex = post['partner_dni_mobbex']
+        partner_dni_mobbex = post.get('partner_dni_mobbex')
 
         # Get Acquirer ID
-        acquirer_id = int(post['acquirer'].replace(
-            'payment.acquirer(', '').replace(',', '').replace(')', ''))
-        _logger.info(acquirer_id)
+        acquirer_id = int(post.get('acquirer'))
 
         # DB Querying
         # ==================================================================
@@ -64,13 +58,10 @@ class MobbexController(http.Controller):
             currency = http.request.env['res.currency'].sudo().search(
                 filter_currency)
             currency_name = currency.name
-            _logger.info(currency_name)
 
         # Get Base Url
         base_url = http.request.env['ir.config_parameter'].sudo().get_param(
             'web.base.url')
-        # base_url = 'https://812022599bc3.ngrok.io'
-        _logger.info(base_url)
 
         # Get Api key & Token
         filterAcquirer = [('id', '=', acquirer_id)]
@@ -79,18 +70,17 @@ class MobbexController(http.Controller):
 
         mobbex_api_key = mobbexAcquirer.mobbex_api_key
         mobbex_access_token = mobbexAcquirer.mobbex_access_token
-
+        reference = post.get('reference')
         # Get State
         mobbex_state = mobbexAcquirer.state
-        _logger.info(mobbex_state)
         # ==================================================================
 
         # Build transaction
         # ==================================================================
-        customer = dict()
-        transaction = dict()
-        options = dict()
-        platform = dict()
+        customer = {}
+        transaction = {}
+        options = {}
+        platform = {}
 
         # Iterate products
         # for product in order_products:
@@ -120,22 +110,18 @@ class MobbexController(http.Controller):
 
         transaction['total'] = amount
         transaction['currency'] = currency_name
-        transaction['reference'] = post['reference']
-        transaction["description"] = 'Orden de compra: ' + post['reference']
+        transaction['reference'] = reference
+        transaction["description"] = 'Orden de compra: %s' % reference
         # transaction['items'] = items
         transaction['customer'] = customer
         transaction['options'] = options
-        transaction['return_url'] = f'{base_url}/payment/mobbex/return_url'
+        transaction['return_url'] = f'{base_url}/payment/mobbex/return_url/%s' % reference
         transaction['webhook'] = f'{base_url}/payment/mobbex/webhook/'
         if(mobbex_state == 'test'):
             transaction['test'] = True
-        _logger.info(transaction)
         # ==================================================================
-
         # Build header
         # ==================================================================
-        _logger.info(mobbex_api_key)
-        _logger.info(mobbex_access_token)
 
         headers = {"x-api-key": mobbex_api_key,
                    "x-access-token": mobbex_access_token,
@@ -156,9 +142,12 @@ class MobbexController(http.Controller):
         # return ''
 
     @http.route([
-        '/payment/mobbex/return_url/'], type='http', auth="public", csrf=False)
-    def mobbex_return(self, **post):
+        '/payment/mobbex/return_url/<string:reference>/'], type='http', auth="public", csrf=False)
+    def mobbex_return(self,reference=False, **post):
         """ Mobbex Return """
+        tx = request.env['payment.transaction'].sudo().search([('reference','=', reference)])
+        if tx:
+            tx.acquirer_reference
         _logger.info('Controller Return')
         _logger.info(post)
         # post is something like = {'status': '200', 'transactionId': 'hyeorJ8P~', 'type': 'card'}
@@ -167,18 +156,14 @@ class MobbexController(http.Controller):
         return werkzeug.utils.redirect("/payment/process")
 
     @http.route([
-        '/payment/mobbex/webhook/'], type='http', auth="public", methods=['POST'], csrf=False)
-    def mobbex_webhook(self, **post):
+        '/payment/mobbex/webhook/'], type='json', auth="public", methods=['POST'], csrf=False)
+    def mobbex_webhook(self, **kw):
         """ Mobbex Webhook """
         _logger.info('Controller Webhook')
-        _logger.info(post)
+        data = json.loads((request.httprequest.data).decode('utf-8'))
 
-        status = int(post.get("data[payment][status][code]"))
-        reference = post.get("data[payment][reference]")
-
-        feedback = {"reference": reference, "status": status}
-        http.request.env['payment.transaction'].sudo().form_feedback(feedback, 'mobbex')
-        res = http.request.env['payment.transaction'].sudo().form_feedback(feedback, 'mobbex')
+        http.request.env['payment.transaction'].sudo().form_feedback(data, 'mobbex')
+        res = http.request.env['payment.transaction'].sudo().form_feedback(data, 'mobbex')
         _logger.info('Transaction result: ' + res)
 
         # return werkzeug.utils.redirect("/payment/process")
