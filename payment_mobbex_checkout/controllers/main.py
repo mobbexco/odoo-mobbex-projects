@@ -15,16 +15,7 @@ _logger = logging.getLogger(__name__)
 
 class MobbexController(http.Controller):
     _notify_url = '/payment/mobbex/notify_url/'
-    _return_url = '/payment/mobbex/return_url/'
-    _logger.info('Controller Init')
 
-    @http.route([
-        '/mobbex/test_values/'],
-        type='http', auth='public', methods=['POST'], csrf=False, website=True)
-    def mobbex_test_values(self, **post):
-        _logger.info('Test Values')
-        _logger.info(post)
-        return json.dumps(post)
 
     @http.route([
         '/payment/mobbex/notify_url/'],
@@ -115,7 +106,9 @@ class MobbexController(http.Controller):
         # transaction['items'] = items
         transaction['customer'] = customer
         transaction['options'] = options
-        transaction['return_url'] = f'{base_url}/payment/mobbex/return_url/%s' % reference
+
+        transaction['return_url'] = f'{base_url}/payment/process'
+        #transaction['return_url'] = f'{base_url}/payment/mobbex/return_url/%s' % reference
         transaction['webhook'] = f'{base_url}/payment/mobbex/webhook/'
         if(mobbex_state == 'test'):
             transaction['test'] = True
@@ -142,27 +135,10 @@ class MobbexController(http.Controller):
         # return ''
 
     @http.route([
-        '/payment/mobbex/return_url/<string:reference>/'], type='http', auth="public", csrf=False)
-    def mobbex_return(self,reference=False, **post):
-        """ Mobbex Return """
-        tx = request.env['payment.transaction'].sudo().search([('reference','=', reference)])
-        if tx:
-            tx.acquirer_reference
-        _logger.info('Controller Return')
-        _logger.info(post)
-        # post is something like = {'status': '200', 'transactionId': 'hyeorJ8P~', 'type': 'card'}
-        # Here we should check the status of the transaction and the call form_feedback with the odoo transaction reference
-        # http.request.env['payment.transaction'].sudo().form_feedback(post, 'mobbex')
-        return werkzeug.utils.redirect("/payment/process")
-
-    @http.route([
         '/payment/mobbex/webhook/'], type='json', auth="public", methods=['POST'], csrf=False)
     def mobbex_webhook(self, **kw):
         """ Mobbex Webhook """
-        _logger.info('Controller Webhook')
         data = json.loads((request.httprequest.data).decode('utf-8'))
-
-        http.request.env['payment.transaction'].sudo().form_feedback(data, 'mobbex')
         res = http.request.env['payment.transaction'].sudo().form_feedback(data, 'mobbex')
         _logger.info('Transaction result: ' + res)
 

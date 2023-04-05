@@ -66,7 +66,6 @@ class PaymentAcquirer(models.Model):
         return values
 
     def mobbex_get_form_action_url(self):
-        _logger.info('Mobbex action url')
         self.ensure_one()
         environment = 'prod' if self.state == 'enabled' else 'test'
         return self._get_mobbex_urls(environment)['mobbex_rest_url']
@@ -74,17 +73,13 @@ class PaymentAcquirer(models.Model):
 
 class TxMobbex(models.Model):
     _inherit = 'payment.transaction'
-
-
-
+    
     def _mobbex_form_get_tx_from_data(self, data):
-        _logger.info('llega from data')
-        _logger.info(data)
-        reference = data['reference']
+        reference = data['data']['payment']['reference']
         if not reference:
             error_msg = _('Mobbex: received data with missing reference (%s)') % (
                 reference)
-            _logger.info(error_msg)
+            _logger.error(error_msg)
             raise ValidationError(error_msg)
 
         # find tx -> @TDENOTE use txn_id ?
@@ -106,15 +101,13 @@ class TxMobbex(models.Model):
 
         pending = [0, 1, 2, 3, 100, 201]
         cancel = [401, 402, 601, 602, 603, 610]
-        data = {
-            'acquirer_reference': data['data']['payment']['id'],
-        }
-        self.write(data)
+        error = [400,500]
+        self.write({'acquirer_reference': data['data']['payment']['id'],})
         if status == 200:
             self._set_transaction_done()
             return_val = 'paid'
-        elif status == '500':
-            self._set_transaction_error(data['data']['payment']['message'])
+        elif status in error:
+            self._set_transaction_error(data['data']['payment']['status']['message'])
             return_val = 'error'
         elif status in pending:
             self._set_transaction_pending()
