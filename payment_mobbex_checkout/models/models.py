@@ -1,10 +1,15 @@
 import logging
+import json
+import requests
 from ..controllers.main import MobbexController
 from odoo import api, fields, models, _
 from odoo.http import request
 from odoo.addons.payment.models.payment_acquirer import ValidationError
+
+
 _logger = logging.getLogger(__name__)
 
+MOBBEX_URL = 'https://api.mobbex.com'
 
 class PaymentAcquirer(models.Model):
     _inherit = 'payment.acquirer'
@@ -40,14 +45,9 @@ class PaymentAcquirer(models.Model):
         partner_id = values.get('partner_id')
         partner = request.env['res.partner'].sudo().browse(partner_id)
 
-        _logger.info('tx values')
-        _logger.info(values)
-        _logger.info(self)
 
         mobbex_tx_values = ({
             '_input_charset': 'utf-8',
-            'acquirer': values.get('acquirer'),
-            'acquirer_provider': values.get('acquirer_provider'),
             'reference': values.get('reference'),
             'amount': values.get('amount'),
             'currency_id': values.get('currency_id'),
@@ -55,11 +55,10 @@ class PaymentAcquirer(models.Model):
             'billing_partner_email': values.get('billing_partner_email'),
             'billing_partner_phone': values.get('billing_partner_phone'),
             'billing_partner_name': values.get('billing_partner_name'),
-            'partner_dni_mobbex': partner.dni_mobbex,
+            'partner_dni_mobbex': partner.vat,
             'partner': values.get('partner'),
             'return_url': values.get('return_url'),
         })
-
         return mobbex_tx_values
 
     def mobbex_form_generate_values(self, values):
@@ -67,7 +66,6 @@ class PaymentAcquirer(models.Model):
         return values
 
     def mobbex_get_form_action_url(self):
-        _logger.info('Mobbex action url')
         self.ensure_one()
         environment = 'prod' if self.state == 'enabled' else 'test'
         return self._get_mobbex_urls(environment)['mobbex_rest_url']
@@ -75,16 +73,13 @@ class PaymentAcquirer(models.Model):
 
 class TxMobbex(models.Model):
     _inherit = 'payment.transaction'
-    _logger.info('Model TXMobbex')
-
+    
     def _mobbex_form_get_tx_from_data(self, data):
-        _logger.info('llega from data')
-        _logger.info(data)
-        reference = data['reference']
+        reference = data['data']['payment']['reference']
         if not reference:
             error_msg = _('Mobbex: received data with missing reference (%s)') % (
                 reference)
-            _logger.info(error_msg)
+            _logger.error(error_msg)
             raise ValidationError(error_msg)
 
         # find tx -> @TDENOTE use txn_id ?
@@ -101,29 +96,39 @@ class TxMobbex(models.Model):
         return txs[0]
 
     def _mobbex_form_validate(self, data):
-        _logger.info('llega model')
-        status = data['status']
+        status = int(data['data']['payment']['status']['code'] or 0)
         return_val = ''
 
         pending = [0, 1, 2, 3, 100, 201]
         cancel = [401, 402, 601, 602, 603, 610]
+        error = [400,500]
+        self.write({'acquirer_reference': data['data']['payment']['id'],})
         if status == 200:
-            self.sudo()._set_transaction_done()
+            self._set_transaction_done()
             return_val = 'paid'
-        if status in pending:
-            self.sudo()._set_transaction_pending()
+        elif status in error:
+            self._set_transaction_error(data['data']['payment']['status']['message'])
+            return_val = 'error'
+        elif status in pending:
+            self._set_transaction_pending()
             return_val = 'pending'
         elif status in cancel:
-            self.sudo()._set_transaction_cancel()
+            self._set_transaction_cancel()
             return_val = 'cancelled'
         return return_val
 
+    def _mobbex_validate_by_id(self):
+        self.ensure_one()
+        headers = {"x-api-key": self.acquirer_id.mobbex_api_key,
+                   "x-access-token": self.acquirer_id.mobbex_access_token,
+                   "x-lang": "es",
+                   "Content-Type": "application/json",
+                   "cache-control": "no-cache"}
+        data = json.dumps({'id': self.acquirer_reference[4:], 'test':True})
 
-class MobbexResPartner(models.Model):
-    _inherit = 'res.partner'
-    _logger.info('Model ResPartner Mobbex')
+        url = MOBBEX_URL + '/2.0/transactions/status'
+        req = requests.post(url, data=data, headers=headers)
 
-    dni_mobbex = fields.Char(
-        string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')
-    # dni2 = fields.Char(
-    #     string='DNI', help='Numero de DNI requerido para el checkout con Mobbex')
+        result = req.json()
+        _logger.info(result)
+
