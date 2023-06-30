@@ -127,7 +127,7 @@ class MobbexController(http.Controller):
             items.append(item)
 
         platform["name"] = "odoo"
-        platform["version"] = "1.0.0"
+        platform["version"] = "1.0.2"
         options["platform"] = platform
 
         # DNI Mobbex Validation
