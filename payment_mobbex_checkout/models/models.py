@@ -10,8 +10,8 @@ class PaymentAcquirer(models.Model):
     _inherit = 'payment.acquirer'
     _logger.info('Model PaymentAcquirer Mobbex')
 
-    provider = fields.Selection(selection_add=[('mobbex', 'Mobbex')], ondelete={
-                                'mobbex': 'set default'})
+    provider = fields.Selection(selection_add=[('mobbex', 'Mobbex')])
+
     mobbex_payment_method = fields.Selection([
         ('mobbex_checkout', 'Mobbex Checkout')
     ], string='Modalidad', default='mobbex_checkout')
