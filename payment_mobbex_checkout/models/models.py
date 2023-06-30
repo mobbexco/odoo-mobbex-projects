@@ -11,6 +11,7 @@ class PaymentAcquirer(models.Model):
     _logger.info('Model PaymentAcquirer Mobbex')
 
     provider = fields.Selection(selection_add=[('mobbex', 'Mobbex')])
+
     mobbex_payment_method = fields.Selection([
         ('mobbex_checkout', 'Mobbex Checkout')
     ], string='Modalidad', default='mobbex_checkout')
@@ -78,7 +79,7 @@ class TxMobbex(models.Model):
     _logger.info('Model TXMobbex')
 
     def _mobbex_form_get_tx_from_data(self, data):
-        _logger.info('llega from data')
+        _logger.info('received data')
         _logger.info(data)
         reference = data['reference']
         if not reference:
