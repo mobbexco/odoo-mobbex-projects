@@ -10,6 +10,9 @@ Version 13.0 or greater
 
 ## Changelog
 
+### 1.0.2
+- Fix checkout return redirct after payment.
+
 ### 1.0.1
 
 - Added DNI field in checkout.
