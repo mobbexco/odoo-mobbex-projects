@@ -15,14 +15,25 @@ _logger.info('Controller instance')
 
 
 class MobbexController(http.Controller):
-    _notify_url = '/payment/mobbex/notify_url/'
+    """Mobbex Controller Class
+
+    Attributes:
+        _return_url : return endpoint.
+        _notify_url : notify endpoint.
+    """
     _return_url = '/payment/mobbex/return_url/'
+    _notify_url = '/payment/mobbex/notify_url/'
     _logger.info('Controller Init')
 
     @http.route([
         '/mobbex/test_values/'],
         type='http', auth='public', methods=['POST'], csrf=False, website=True)
     def mobbex_test_values(self, **post):
+        """Test values method. Fires when accessing test values route 
+
+        Returns:
+            dict: encoded post data
+        """
         _logger.info('Test Values')
         _logger.info(post)
         return json.dumps(post)
@@ -31,7 +42,14 @@ class MobbexController(http.Controller):
         '/payment/mobbex/notify_url/'],
         type='http', auth='public', methods=['POST'], csrf=False, website=True)
     def mobbex_notify(self, **post):
-        _logger.info('Controller Notify')
+        """Creates Mobbex checkout 
+
+        Fires when accesing notify route
+
+        Returns:
+            (str): redirect url
+        """
+        _logger.info('Controller Checkout')
         # _logger.info(self)
         _logger.info(post)
 
@@ -49,8 +67,8 @@ class MobbexController(http.Controller):
         amount = post['amount']
 
         # Get Billing Data
-        billing_partner_email = post['billing_partner_email']
         billing_partner_name = post['billing_partner_name']
+        billing_partner_email = post['billing_partner_email']
         billing_partner_phone = post['billing_partner_phone']
 
         # Get Partner Data
@@ -130,6 +148,12 @@ class MobbexController(http.Controller):
         platform["version"] = "1.0.2"
         options["platform"] = platform
 
+        # Customer data
+        # ==================================================================
+        customer['name']  = billing_partner_name
+        customer['phone'] = billing_partner_phone
+        customer['email'] = billing_partner_email
+        # customer['identification'] = ''
         # DNI Mobbex Validation
         final_dni = partner_dni_mobbex
         if form_dni_mobbex != partner_dni_mobbex:
@@ -141,22 +165,19 @@ class MobbexController(http.Controller):
 
         if final_dni != '' and final_dni != None:
             customer['identification'] = final_dni
+        # ==================================================================
 
-        # Customer Data
-        customer['email'] = billing_partner_email
-        # customer['identification'] = ''
-        customer['name']  = billing_partner_name
-        customer['phone'] = billing_partner_phone
-
-        transaction['total']       = amount
-        transaction['currency']    = currency_name
-        transaction['reference']   = f'{reference[0]}-{reference[1]}'
-        transaction["description"] = f'Orden de compra: {reference[0]}-{reference[1]}'
-        transaction['items']       = items
-        transaction['customer']    = customer
-        transaction['options']     = options
-        transaction['return_url']  = f"{base_url}/payment/mobbex/return_url/?reference={transaction['reference']}"
+        # Transaction data
+        # ==================================================================
         #transaction['webhook'] =
+        transaction['items'] = items
+        transaction['total'] = amount
+        transaction['options'] = options
+        transaction['customer'] = customer
+        transaction['currency'] = currency_name
+        transaction['reference'] = f'{reference[0]}-{reference[1]}'
+        transaction["description"] = f'Orden de compra: {reference[0]}-{reference[1]}'
+        transaction['return_url'] = f"{base_url}/payment/mobbex/return_url/?reference={transaction['reference']}"
         if(mobbex_state == 'test'):
             transaction['test'] = True
         _logger.info(transaction)
@@ -192,14 +213,18 @@ class MobbexController(http.Controller):
         '/payment/mobbex/return_url/'],
           type='http', auth="public", methods=['GET'], csrf=False, website=True)
     def mobbex_return(self, **post):
-        """ Mobbex Return """
+        """Mobbex return controller
+        Fires when accesing to return route
+
+        Returns:
+            str: process route
+        """
         _logger.info('Controller Return')
         _logger.info(post)
         
         #Get status and reference from post data
         status    = post.get('status', '')
         reference = post.get('reference', '') 
-
 
         # Use reference name to get sale order
         ref_name   = reference.split('-')
