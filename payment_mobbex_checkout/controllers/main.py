@@ -143,19 +143,6 @@ class MobbexController(http.Controller):
         # Redirect to order process
         return werkzeug.utils.redirect(f'/payment/process/')
     
-    @http.route([
-        '/mobbex/test_values/'],
-        type='http', auth='public', methods=['POST'], csrf=False, website=True)
-    def mobbex_test_values(self, **post):
-        """Test values method. Fires when accessing test values route 
-
-        Returns:
-            dict: encoded post data
-        """
-        _logger.info('Test Values')
-        _logger.info(post)
-        return json.dumps(post)
-    
     def mobbex_get_currency(self, post_data):
         """Get currency code name
 
