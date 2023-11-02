@@ -41,11 +41,11 @@ class PaymentAcquirer(models.Model):
         """
         if environment == 'prod':
             return {
-                'mobbex_rest_url': '/payment/mobbex/notify_url/',
+                'mobbex_rest_url': '/payment/mobbex/checkout/',
             }
         else:
             return {
-                'mobbex_rest_url': '/payment/mobbex/notify_url/',
+                'mobbex_rest_url': '/payment/mobbex/checkout/',
             }
 
     def _get_mobbex_tx_values(self, values):

@@ -19,10 +19,10 @@ class MobbexController(http.Controller):
 
     Attributes:
         _return_url : return endpoint.
-        _notify_url : notify endpoint.
+        _checkout_url : notify endpoint.
     """
     _return_url = '/payment/mobbex/return_url/'
-    _notify_url = '/payment/mobbex/notify_url/'
+    _checkout_url = '/payment/mobbex/checkout/'
     _logger.info('Controller Init')
 
     @http.route([
@@ -39,12 +39,12 @@ class MobbexController(http.Controller):
         return json.dumps(post)
 
     @http.route([
-        '/payment/mobbex/notify_url/'],
+        '/payment/mobbex/checkout/'],
         type='http', auth='public', methods=['POST'], csrf=False, website=True)
-    def mobbex_notify(self, **post):
+    def mobbex_checkout(self, **post):
         """Creates Mobbex checkout 
 
-        Fires when accesing notify route
+        Fires when accesing mobbex checkout route
 
         Returns:
             (str): redirect url
