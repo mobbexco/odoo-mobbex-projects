@@ -139,9 +139,11 @@ class MobbexController(http.Controller):
         if res == 'paid':
             # If transaction was paid, we need confirm order sale
             saleorders.sudo().action_confirm()
-
-        # Redirect to order process
-        return werkzeug.utils.redirect(f'/payment/process/')
+            # Redirect to order process
+            return werkzeug.utils.redirect(f'/payment/process/')
+        else:
+            # If isn't paid return to cart
+            return werkzeug.utils.redirect('/shop/cart/')
     
     def mobbex_get_currency(self, post_data):
         """Get currency code name
