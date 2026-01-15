@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="payment_method_mobbex" model="payment.method">
+            <field name="name">Mobbex</field>
+            <field name="code">mobbex</field>
+            <field name="image" type="base64"
+                file="payment_mobbex_checkout/static/description/icon.png" />
+        </record>
+    </data>
+</odoo>
