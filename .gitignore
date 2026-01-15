@@ -1,2 +1,6 @@
 *__pycache__
 .vscode/
+todo.md
+odools.toml
+build-odoo.sh
+.env
