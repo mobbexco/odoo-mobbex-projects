@@ -6,17 +6,21 @@
     'version': '1.0.2',
     'author': 'Mobbex',
     'website': 'https://www.mobbex.com/',
-    'category': 'Accounting/Payment',
-    'summary': 'A module that provides Odoo Mobbex integration.',
+    'category': 'Accounting/Payment Providers',
+    'summary': 'Module to integrate Mobbex Checkout payment gateway with Odoo.',
     'description': """The Mobbex Payment Gateway redirects customers to Mobbex to enter their payment information.""",
-    'depends': ['payment'],
+    'depends': ['base', 'payment'],
     'installable': True,
+    'application': True,
+    "auto_install": False,
     'data': [
-        'views/mobbex_checkout_views.xml',
         'views/mobbex_checkout_template.xml',
-        'data/payment_acquirer_data.xml',
+        'views/mobbex_checkout_views.xml',
+
+        'data/payment_provider_data.xml',
+        'data/payment_method_data.xml'
     ],
-    'post_init_hook': 'create_missing_journal_for_acquirers',
+    'post_init_hook': 'post_init_hook',
     'uninstall_hook': 'uninstall_hook',
     'images': ['static/description/checkout_banner.png'],
     'license': 'AGPL-3'
