@@ -10,6 +10,15 @@ Version 13.0 or greater
 
 ## Changelog
 
+### 2.0.0
+- Plugin update to support Odoo 19
+- Remade provider and transaction models
+- Added security checks on redirects
+- Return renewal
+- Added webhook process
+- Added debug configuration for development logs
+- several code improvements
+
 ### 1.0.2
 - Fix checkout return redirct after payment.
 
