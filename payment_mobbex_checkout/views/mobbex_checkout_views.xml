@@ -2,66 +2,27 @@
 <odoo>
     <data>
         <record id="payment_acquirer_view_form_inherit_payment_mobbex" model="ir.ui.view">
-            <field name="name">payment.acquirer.view.form.inherit.payment.mobbex</field>
-            <field name="model">payment.acquirer</field>
-            <field name="inherit_id" ref="payment.acquirer_form" />
+            <field name="name">Mobbex Payment Provider Form</field>
+            <field name="model">payment.provider</field>
+            <field name="inherit_id" ref="payment.payment_provider_form" />
             <field name="arch" type="xml">
-                <xpath expr='//group[@name="acquirer"]' position='inside'>
-                    <group attrs="{'invisible': [('provider', '!=', 'mobbex')]}">
-                        <field name="mobbex_payment_method" widget="radio" />
-                        <field name="mobbex_api_key" />
-                        <field name="mobbex_access_token" />
+                <!-- Credentials -->
+                <group name="provider_credentials" position="inside">
+                    <group invisible="code != 'mobbex'" name="mobbex_credentials">
+                        <field name="mobbex_api_key" string="Api Key" password="True"/>
+                        <field name="mobbex_access_token" string="Access Token" password="True"/>
+                    </group>
+                </group>
+                
+                <!-- Configuration-->
+                <xpath expr="//page[@name='configuration']" position="inside">
+                    <group string="Mobbex" invisible="code != 'mobbex'" name="mobbex_settings">
+                        <group>
+                            <field name="mobbex_enable_debug" string="Modo Debug"/>
+                        </group>
                     </group>
                 </xpath>
             </field>
         </record>
-
-        <template id="mobbex_website_payment_inherit" inherit_id="payment.payment_tokens_list">
-            <!-- <xpath expr="//div[@class='card']" position="inside"> -->
-            <xpath expr="//div[@class='text-muted ml-3']" position="before">
-                <div t-if="acq.provider == 'mobbex'">
-                    <div t-attf-id="o_payment_form_acq_{{acq.id}}" t-attf-class="d-none {{'d-block' if acq.save_token == 'ask' else ''}}">
-                        <t t-set="partner_data" t-value="request.env['res.partner'].sudo().browse(partner_id)" />
-                        <div class="card mt-1">
-                            <div class="card-body">
-                                <div class="h4">Datos adicionales</div>
-                                <!-- <form t-att-action="/mobbex/test_values/" t-att-method="post" t-att-enctype="multipart/form-data" t-att-id="mobbex_test_values"> -->
-                                <div class="form-group field-new">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <label for="label" class="control-label">
-                                                <b>DNI  </b>
-                                                <!-- <t t-esc='acq.provider'></t>
-                                        <t t-raw='acq.provider'></t> -->
-                                            </label>
-                                            <input type="value" name="dni_mobbex" t-att-value="partner_data.dni_mobbex" class="form-control"></input>
-                                        </div>
-                                        <div class="col-6">
-                                            <!-- <button type="submit">test</button> -->
-                                            <!-- <input type="hidden" name="dni_mobbex2" t-att-value="partner_data.dni_mobbex"></input> -->
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- </form> -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </xpath>
-        </template>
-
-        <!-- <record id="res_partner_form_view_inherit_payment_mobbex" model="ir.ui.view">
-            <field name="name">res.partner.form.view.inherit.payment.mobbex</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="website_sale.address" />
-            <field name="arch" type="xml">
-                <xpath expr="//div[@id='div_phone']" position="before">
-                    <div class="w-100">
-                        <field name="dni" />
-                        <field name="dni2" />
-                    </div>
-                </xpath>
-            </field>
-        </record> -->
     </data>
 </odoo>
