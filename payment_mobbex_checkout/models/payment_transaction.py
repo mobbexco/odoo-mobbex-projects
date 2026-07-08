@@ -22,6 +22,7 @@ class PaymentTransaction(models.Model):
 
     def _get_specific_rendering_values(self, processing_values: dict) -> dict:
         """Override payment to return Mobbex-specific rendering redirect form.
+        (a.k.a create_checkout)
         Note: part of _get_processing_values()
         """
 
@@ -33,7 +34,7 @@ class PaymentTransaction(models.Model):
             return super()._get_specific_processing_values(processing_values)
 
         # Set transaction data in a new dictionary
-        payload = self.mobbex_prepare_preference_request_payload()
+        payload = self.mobbex_build_payload()
 
         utils.debug_log("checkout payload", payload)
 
@@ -78,7 +79,6 @@ class PaymentTransaction(models.Model):
         if provider_code != 'mobbex':
             return super()._extract_reference(provider_code, payment_data)
 
-        _logger.info("[Mobbex] _extract_reference > extracting reference")
         utils.debug_log("_extract_reference payment data", payment_data)
         reference = payment_data.get('reference')
         utils.debug_log(" _extract_reference", reference)
@@ -97,9 +97,9 @@ class PaymentTransaction(models.Model):
             return super()._extract_amount_data(payment_data)
 
         amount = payment_data.get('total')
-        currency_code = payment_data.get('currency', '').get('code', '')
-        # Just for test mode uses
-        currency = 'ARS' if currency_code == 'TEST' else currency_code
+        payload_currency = payment_data.get('currency', '').get('code', '')
+        # Just for test mode use
+        currency = self.currency_id.name if payload_currency == 'TEST' else payload_currency
 
         utils.debug_log(
             " _extract_amount_data", {
@@ -125,11 +125,9 @@ class PaymentTransaction(models.Model):
             "_apply_updates > updating payment data",
             payment_data
         )
-        _logger.info("[Mobbex] _apply_updates > updating payment data")
 
         # Update the provider reference.
         payment_id = payment_data.get('id')
-        _logger.info("[Mobbex] _apply_updates > payment id %s", payment_id)
         if not payment_id:
             self._set_error(
                 _("[Mobbex] Received payment data with missing payment id."))
@@ -138,7 +136,11 @@ class PaymentTransaction(models.Model):
 
         # Update the payment state.
         payment_status = int(payment_data.get('status').get('code'))
-        _logger.info("[Mobbex] Updating payment state %s", payment_status)
+        utils.debug_log(
+            "_apply_updates > updating payment state",
+            payment_status
+        )
+
         if not payment_status:
             self._set_error(
                 _("[Mobbex] Received payment data with missing status."))
@@ -162,8 +164,8 @@ class PaymentTransaction(models.Model):
 
     # === MOBBEX METHODS === #
 
-    def mobbex_prepare_preference_request_payload(self) -> dict:
-        """Create the Mobbex payload based on the transaction values.
+    def mobbex_build_payload(self) -> dict:
+        """Create the Mobbex payload/checkout body based on the transaction values.
 
         Returns:
             dict: The preference request payload.
