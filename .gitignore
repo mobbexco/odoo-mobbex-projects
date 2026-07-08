@@ -2,5 +2,6 @@
 .vscode/
 todo.md
 odools.toml
-build-odoo.sh
+*.sh
 .env
+.zed
