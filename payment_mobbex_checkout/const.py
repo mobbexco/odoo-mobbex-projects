@@ -21,6 +21,7 @@ SUPPORTED_CURRENCIES = {
     'MXN',  # Mexico - Mexican Peso
     'COP',  # Colombia - Colombian Peso
     'EUR',  # Spain - Euro
+    'USD',  # United States - US Dollar
 }
 
 DEFAULT_PAYMENT_METHOD_CODES = {
