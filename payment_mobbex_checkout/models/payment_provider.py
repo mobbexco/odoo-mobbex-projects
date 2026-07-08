@@ -96,7 +96,7 @@ class PaymentProvider(models.Model):
     def _get_supported_currencies(self):
         """Override to return the supported currencies."""
         supported_currencies = super()._get_supported_currencies()
-        if self.code == "onepay":
+        if self.code == "mobbex":
             _logger.info(
                 f'[Mobbex] Supported Currencies:{const.SUPPORTED_CURRENCIES}')
             supported_currencies = supported_currencies.filtered(
