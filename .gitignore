@@ -5,3 +5,4 @@ odools.toml
 *.sh
 .env
 .zed
+.claude
