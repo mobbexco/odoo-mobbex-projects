@@ -38,7 +38,8 @@ This file contains the main controller (`MobbexController`) responsible for hand
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/mobbexco/odoo-mobbex-projects.git ```
+   git clone https://github.com/mobbexco/odoo-mobbex-projects.git
+   ```
 2. **Place the Module in Odoo Addons Directory:**
    Move the cloned repository to your Odoo addons directory.
 3. **Install the Module:**
