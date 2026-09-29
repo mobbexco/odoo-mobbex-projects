@@ -3,6 +3,8 @@
 todo.md
 odools.toml
 *.sh
+!build-zip.sh
+dist/
 .env
 .zed
 .claude
